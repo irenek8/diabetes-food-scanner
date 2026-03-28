@@ -64,7 +64,18 @@
     </div>
 
     <script>
-      // Show a preview of the image when selected
+      // Load saved API key from browser on page load
+      window.addEventListener('load', function () {
+        const saved = localStorage.getItem('glucoscan_apikey');
+        if (saved) document.getElementById('apiKey').value = saved;
+      });
+
+      // Save API key to browser whenever user types in it
+      document.getElementById('apiKey').addEventListener('input', function () {
+        localStorage.setItem('glucoscan_apikey', this.value.trim());
+      });
+
+      // Show image preview when file is selected
       document.getElementById('foodImage').addEventListener('change', function () {
         const file = this.files[0];
         if (!file) return;
