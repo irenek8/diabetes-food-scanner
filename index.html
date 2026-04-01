@@ -108,7 +108,7 @@
       </div>
 
       <!-- Result Card -->
-      <div id="resultCard" class="hidden result-card bg-white rounded-2xl shadow-sm border border-gray-100 w-full max-w-lg p-5">
+      <div id="resultCard" class="hidden result-card bg-white rounded-2xl shadow-sm border border-gray-100 w-full max-w-3xl p-5"></div>
 
         <div id="loading" class="flex flex-col items-center py-6 gap-3">
           <div class="w-10 h-10 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
@@ -142,7 +142,7 @@
         />
         <p class="text-xs text-gray-400 mt-2">🔒 Your key stays in your browser and is never uploaded anywhere.</p>
       </div>
-      
+
       <p class="text-xs text-gray-400 text-center max-w-sm leading-relaxed">
         This tool is for informational purposes only and is not a substitute for medical advice. Always consult your doctor or dietitian about your diet.
       </p>
@@ -399,6 +399,9 @@ List 2-3 alternatives with lower glycemic impact and one sentence on why each is
           'HEALTHIER ALTERNATIVES'
         ];
 
+        const grid = document.createElement('div');
+        grid.style.cssText = 'display: grid; grid-template-columns: 1fr 1fr; gap: 10px;';
+
         sectionKeys.forEach((key, i) => {
           const label = SECTION_LABELS[i];
           const regex = new RegExp(`\\[${key}\\]([\\s\\S]*?)(?=\\[|$)`, 'i');
@@ -409,13 +412,15 @@ List 2-3 alternatives with lower glycemic impact and one sentence on why each is
 
           const card = document.createElement('div');
           card.className = 'section-card';
+          card.style.cssText = 'margin-bottom: 0;';
           card.innerHTML = `
             <div class="section-title">${label.title}</div>
             <div class="section-body">${content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/\n/g, '<br/>')}</div>
           `;
-          outputSections.appendChild(card);
+          grid.appendChild(card);
         });
 
+        outputSections.appendChild(grid);
         outputDiv.classList.remove('hidden');
       }
 
