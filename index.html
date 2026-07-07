@@ -3,436 +3,142 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>GlucoScan — Diabetes Food Scanner</title>
+    <title>GlucoScan — Stripped Down</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet"/>
     <style>
-      body { font-family: 'Raleway', sans-serif; }
-      .result-card { animation: fadeIn 0.4s ease; }
-      @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-      .upload-area { transition: border-color 0.2s, background 0.2s; }
-      .upload-area:hover { border-color: #16a34a; background: #f0fdf4; }
-      .section-card { background: #f9fafb; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; border: 0.5px solid #e5e7eb; }
-      .section-title { font-size: 15px; font-weight: 700; color: #15803d; margin-bottom: 4px; }
-      .section-body { font-size: 13px; color: #374151; line-height: 1.7; }
+      body { font-family: 'Raleway', sans-serif; background: #f0fdf4; }
+      .section-card { background: #ffffff; border-radius: 12px; padding: 14px; margin-bottom: 10px; border: 1px solid #e5e7eb; }
+      .section-title { font-weight: 700; color: #15803d; }
     </style>
   </head>
+  <body class="p-6 max-w-lg mx-auto">
 
-  <body class="min-h-screen" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);">
-
-    <!-- Header -->
-    <header class="w-full bg-white border-b border-gray-100 shadow-sm px-6 py-4 flex items-center gap-3">
-      <div>
-        <h1 class="text-lg font-bold text-green-700 leading-tight">GlucoScan</h1>
-        <p class="text-xs text-gray-400">Diabetes-friendly food analysis</p>
-      </div>
-      <span class="ml-auto text-xs bg-green-100 text-green-700 font-medium px-3 py-1 rounded-full">Powered by Gemini</span>
+    <header class="mb-6 text-center">
+      <h1 class="text-xl font-bold text-green-700">GlucoScan (Simple)</h1>
     </header>
 
-    <main class="flex flex-col items-center px-4 py-10 gap-6">
+    <div class="bg-white p-4 rounded-xl shadow-sm border mb-4">
+      <input type="password" id="apiKey" placeholder="Paste Gemini API Key" class="w-full border p-2 rounded mb-3"/>
+      <input type="file" accept="image/*" id="foodImage" class="w-full mb-3"/>
+      <button onclick="analyzeFood()" class="w-full bg-green-600 text-white py-2 rounded font-bold">Analyze Food</button>
+    </div>
 
-      <!-- Upload Card -->
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 w-full max-w-lg p-5">
-        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Food Photo</label>
-
-        <label for="foodImage" class="upload-area cursor-pointer flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl p-6 mb-4">
-          <span class="text-3xl mb-2">📷</span>
-          <span class="text-sm font-medium text-gray-600">Tap to take a photo or upload</span>
-          <span class="text-xs text-gray-400 mt-1">Works best with clear, well-lit photos</span>
-          <input type="file" accept="image/*" capture="environment" id="foodImage" class="hidden"/>
-        </label>
-
-        <img id="preview" class="hidden w-full rounded-xl mb-4 object-cover max-h-56 shadow-sm"/>
-
-        <button
-          onclick="analyzeFood()"
-          id="analyzeBtn"
-          class="w-full bg-green-600 hover:bg-green-700 active:scale-95 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-150 flex items-center justify-center gap-2">
-          <span id="btnIcon">🔍</span>
-          <span id="btnText">Analyze Food</span>
-        </button>
+    <div id="confirmCard" class="hidden bg-white p-4 rounded-xl shadow-sm border mb-4 text-center">
+      <p class="text-sm text-gray-500 mb-1">Identified as:</p>
+      <p id="identifiedFood" class="text-lg font-bold text-green-700 mb-3"></p>
+      <div class="flex gap-2">
+        <button onclick="confirmFood()" class="flex-1 bg-green-600 text-white py-2 rounded font-bold">Yes, analyze it</button>
+        <button onclick="showCorrection()" class="flex-1 bg-gray-200 text-gray-700 py-2 rounded font-bold">No, correct it</button>
       </div>
+    </div>
 
-      <!-- Confirmation Card -->
-      <div id="confirmCard" class="hidden result-card bg-white rounded-2xl shadow-sm border border-gray-100 w-full max-w-lg p-5">
-        <div class="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
-          <span class="text-lg">🤔</span>
-          <h2 class="font-bold text-gray-700">Is this correct?</h2>
-        </div>
-        <p class="text-sm text-gray-500 mb-3">Gemini identified your food as:</p>
-        <div class="bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-5 text-center">
-          <p id="identifiedFood" class="text-lg font-bold text-green-700"></p>
-        </div>
-        <p class="text-sm text-gray-500 mb-3">Is that right?</p>
-        <div class="flex gap-3">
-          <button onclick="confirmFood()"
-            class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-xl transition flex items-center justify-center gap-2">
-            Yes, analyze it
-          </button>
-          <button onclick="showCorrection()"
-            class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl transition flex items-center justify-center gap-2">
-            No, that's wrong
-          </button>
-        </div>
-      </div>
+    <div id="correctionCard" class="hidden bg-white p-4 rounded-xl shadow-sm border mb-4">
+      <input type="text" id="manualFood" placeholder="Type food manually..." class="w-full border p-2 rounded mb-2"/>
+      <button onclick="analyzeManual()" class="w-full bg-blue-600 text-white py-2 rounded font-bold">Analyze This Instead</button>
+    </div>
 
-      <!-- Correction Card -->
-      <div id="correctionCard" class="hidden result-card bg-white rounded-2xl shadow-sm border border-gray-100 w-full max-w-lg p-5">
-        <div class="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
-          <span class="text-lg">✏️</span>
-          <h2 class="font-bold text-gray-700">Let's fix that</h2>
-        </div>
-        <p class="text-sm text-gray-500 mb-4">How would you like to proceed?</p>
-        <div class="flex flex-col gap-3">
-          <button onclick="retakePhoto()"
-            class="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2 border border-blue-200">
-            📷 Retake the photo
-          </button>
-          <div class="relative flex items-center gap-3">
-            <div class="flex-1 border-t border-gray-200"></div>
-            <span class="text-xs text-gray-400">or</span>
-            <div class="flex-1 border-t border-gray-200"></div>
-          </div>
-          <p class="text-sm text-gray-500 text-center">Type in the food manually:</p>
-          <input
-            type="text"
-            id="manualFood"
-            placeholder="e.g. white rice with chicken..."
-            class="block w-full text-sm border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-green-300 bg-gray-50"
-          />
-          <button onclick="analyzeManual()"
-            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2">
-            🔍 Analyze this food
-          </button>
-        </div>
-      </div>
-
-      <!-- Result Card -->
-      <div id="resultCard" class="hidden result-card bg-white rounded-2xl shadow-sm border border-gray-100 w-full max-w-3xl p-5"></div>
-
-        <div id="loading" class="flex flex-col items-center py-6 gap-3">
-          <div class="w-10 h-10 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
-          <p class="text-sm text-green-600 font-medium">Analyzing your food...</p>
-          <p class="text-xs text-gray-400">This usually takes 5–10 seconds</p>
-        </div>
-
-        <div id="output" class="hidden">
-          <div class="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
-            <span class="text-lg"></span>
-            <h2 class="font-bold text-gray-700">Analysis Result</h2>
-            <button onclick="clearAll()" class="ml-auto text-xs text-gray-400 hover:text-red-400 transition">✕ Start over</button>
-          </div>
-          <div id="outputSections"></div>
-        </div>
-
-        <div id="errorBox" class="hidden bg-red-50 border border-red-100 rounded-xl p-4">
-          <p class="text-sm text-red-600 font-medium"> Something went wrong</p>
-          <p id="errorText" class="text-xs text-red-400 mt-1"></p>
-        </div>
-
-      </div>
-<!-- API Key Card -->
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 w-full max-w-lg p-5">
-        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Gemini API Key</label>
-        <input
-          type="password"
-          id="apiKey"
-          placeholder="Paste your API key here..."
-          class="block w-full text-sm border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-green-300 bg-gray-50"
-        />
-        <p class="text-xs text-gray-400 mt-2">🔒 Your key stays in your browser and is never uploaded anywhere.</p>
-      </div>
-
-      <p class="text-xs text-gray-400 text-center max-w-sm leading-relaxed">
-        This tool is for informational purposes only and is not a substitute for medical advice. Always consult your doctor or dietitian about your diet.
-      </p>
-
-    </main>
+    <div id="resultCard" class="hidden bg-white p-4 rounded-xl shadow-sm border">
+      <h2 class="font-bold text-gray-700 mb-3 pb-2 border-b">Analysis Result</h2>
+      <div id="outputSections"></div>
+    </div>
 
     <script>
       let confirmedFoodName = '';
 
-      const SECTION_LABELS = [
-        { emoji: '', title: 'Food Identified' },
-        { emoji: '', title: 'Glycemic Index' },
-        { emoji: '', title: 'Blood Glucose Impact' },
-        { emoji: '', title: 'Recommended Portion Size' },
-        { emoji: '', title: 'Safe to Eat?' },
-        { emoji: '', title: 'Healthier Alternatives' },
-      ];
-
-      window.addEventListener('load', function () {
-        const saved = localStorage.getItem('glucoscan_apikey');
-        if (saved) document.getElementById('apiKey').value = saved;
-      });
-
-      document.getElementById('apiKey').addEventListener('input', function () {
-        localStorage.setItem('glucoscan_apikey', this.value.trim());
-      });
-
-      document.getElementById('foodImage').addEventListener('change', function () {
-        const file = this.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const preview = document.getElementById('preview');
-          preview.src = e.target.result;
-          preview.classList.remove('hidden');
-        };
-        reader.readAsDataURL(file);
-      });
-
-      function clearAll() {
-        document.getElementById('resultCard').classList.add('hidden');
-        document.getElementById('confirmCard').classList.add('hidden');
-        document.getElementById('correctionCard').classList.add('hidden');
-        document.getElementById('output').classList.add('hidden');
-        document.getElementById('errorBox').classList.add('hidden');
-        document.getElementById('outputSections').innerHTML = '';
-        document.getElementById('preview').classList.add('hidden');
-        document.getElementById('foodImage').value = '';
-        document.getElementById('manualFood').value = '';
-        confirmedFoodName = '';
-      }
-
-      function setLoading(isLoading) {
-        const btn = document.getElementById('analyzeBtn');
-        const btnText = document.getElementById('btnText');
-        const btnIcon = document.getElementById('btnIcon');
-        if (isLoading) {
-          btn.disabled = true;
-          btn.classList.add('opacity-60', 'cursor-not-allowed');
-          btnText.textContent = 'Analyzing...';
-          btnIcon.textContent = '';
-        } else {
-          btn.disabled = false;
-          btn.classList.remove('opacity-60', 'cursor-not-allowed');
-          btnText.textContent = 'Analyze Food';
-          btnIcon.textContent = '';
-        }
-      }
-
-      function showError(message) {
-        const resultCard = document.getElementById('resultCard');
-        const loadingDiv = document.getElementById('loading');
-        const errorBox = document.getElementById('errorBox');
-        const errorText = document.getElementById('errorText');
-        resultCard.classList.remove('hidden');
-        loadingDiv.classList.add('hidden');
-        errorBox.classList.remove('hidden');
-        errorText.textContent = message;
-        setLoading(false);
-      }
-
-      // Step 1: identify food only, then show confirmation
+      // 1. Identify food from image
       async function analyzeFood() {
-        const apiKey = document.getElementById('apiKey').value.trim();
-        const fileInput = document.getElementById('foodImage');
-
-        if (!apiKey) { alert('Please paste your Gemini API key first.'); return; }
-        if (!fileInput.files[0]) { alert('Please select or take a photo of a food item first.'); return; }
-
-        setLoading(true);
-        document.getElementById('confirmCard').classList.add('hidden');
-        document.getElementById('correctionCard').classList.add('hidden');
-        document.getElementById('resultCard').classList.add('hidden');
-
-        const file = fileInput.files[0];
+        const apiKey = document.getElementById('apiKey').value;
+        const file = document.getElementById('foodImage').files[0];
         const base64Image = await toBase64(file);
 
-        const identifyPrompt = `Look at this food image and respond with ONLY the name of the food you see. Nothing else — just the food name, as short as possible. For example: "White rice and chicken" or "Apple" or "Cheeseburger".`;
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: 'Identify the food in this image. Return ONLY the name.' },
+                { inline_data: { mime_type: file.type, data: base64Image } }
+              ]
+            }]
+          })
+        });
 
-        try {
-          const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{
-                  parts: [
-                    { text: identifyPrompt },
-                    { inline_data: { mime_type: file.type, data: base64Image } }
-                  ]
-                }]
-              })
-            }
-          );
+        const data = await response.json();
+        confirmedFoodName = data.candidates[0].content.parts[0].text.trim();
 
-          const data = await response.json();
-          if (data.error) { showError(data.error.message); return; }
-
-          const foodName = data.candidates[0].content.parts[0].text.trim();
-          confirmedFoodName = foodName;
-
-          document.getElementById('identifiedFood').textContent = foodName;
-          document.getElementById('confirmCard').classList.remove('hidden');
-          document.getElementById('confirmCard').scrollIntoView({ behavior: 'smooth' });
-
-        } catch (err) {
-          showError('Check your internet connection and API key, then try again.');
-        }
-
-        setLoading(false);
+        document.getElementById('identifiedFood').textContent = confirmedFoodName;
+        document.getElementById('confirmCard').classList.remove('hidden');
       }
 
-      // Step 2a: user confirms food — run full analysis
+      // 2a. User clicks 'Yes'
       async function confirmFood() {
         document.getElementById('confirmCard').classList.add('hidden');
-        await runFullAnalysis(confirmedFoodName, true);
+        await runFullAnalysis(confirmedFoodName);
       }
 
-      // Step 2b: user says wrong — show correction options
+      // 2b. User clicks 'No'
       function showCorrection() {
         document.getElementById('confirmCard').classList.add('hidden');
         document.getElementById('correctionCard').classList.remove('hidden');
-        document.getElementById('correctionCard').scrollIntoView({ behavior: 'smooth' });
       }
 
-      // Retake: hide correction card, reset image
-      function retakePhoto() {
-        document.getElementById('correctionCard').classList.add('hidden');
-        document.getElementById('preview').classList.add('hidden');
-        document.getElementById('foodImage').value = '';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-
-      // Manual entry: analyze typed food name
+      // 3. User types fallback text manually
       async function analyzeManual() {
-        const manualFood = document.getElementById('manualFood').value.trim();
-        if (!manualFood) { alert('Please type in the food name first.'); return; }
+        const manualFood = document.getElementById('manualFood').value;
         document.getElementById('correctionCard').classList.add('hidden');
-        await runFullAnalysis(manualFood, false);
+        await runFullAnalysis(manualFood);
       }
 
-      // Full analysis — works with either image or text
-      async function runFullAnalysis(foodName, useImage) {
-        const apiKey = document.getElementById('apiKey').value.trim();
-        const resultCard = document.getElementById('resultCard');
-        const loadingDiv = document.getElementById('loading');
-        const outputDiv = document.getElementById('output');
-        const outputSections = document.getElementById('outputSections');
-        const errorBox = document.getElementById('errorBox');
+      // 4. Request full nutritional breakdowns
+      async function runFullAnalysis(foodName) {
+        const apiKey = document.getElementById('apiKey').value;
+        document.getElementById('resultCard').classList.remove('hidden');
 
-        resultCard.classList.remove('hidden');
-        loadingDiv.classList.remove('hidden');
-        outputDiv.classList.add('hidden');
-        errorBox.classList.add('hidden');
-        outputSections.innerHTML = '';
-        resultCard.scrollIntoView({ behavior: 'smooth' });
+        const prompt = `Provide info for ${foodName} in this format:
+[FOOD IDENTIFIED] name
+[GLYCEMIC INDEX] info
+[BLOOD GLUCOSE IMPACT] info
+[RECOMMENDED PORTION SIZE] info
+[SAFE TO EAT?] info
+[HEALTHIER ALTERNATIVES] info`;
 
-        const prompt = `You are a helpful assistant for people managing diabetes.
-The food being analyzed is: ${foodName}
-
-Provide a response in exactly this format with these exact section headers and nothing else before or after:
-
-[FOOD IDENTIFIED]
-State the full name of the food.
-
-[GLYCEMIC INDEX]
-State whether the glycemic index is low, medium, or high, give an estimated number, and explain in 1-2 sentences what that means for blood sugar.
-
-[BLOOD GLUCOSE IMPACT]
-In 2-3 sentences, describe how much this food is likely to spike blood glucose levels and how quickly.
-
-[RECOMMENDED PORTION SIZE]
-State the recommended portion size for a person with diabetes and briefly explain why.
-
-[SAFE TO EAT?]
-State clearly: Safe to eat / Eat in moderation / Avoid. Then explain in 1-2 sentences.
-
-[HEALTHIER ALTERNATIVES]
-List 2-3 alternatives with lower glycemic impact and one sentence on why each is better.`;
-
-        try {
-          let requestBody;
-          if (useImage && document.getElementById('foodImage').files[0]) {
-            const file = document.getElementById('foodImage').files[0];
-            const base64Image = await toBase64(file);
-            requestBody = {
-              contents: [{
-                parts: [
-                  { text: prompt },
-                  { inline_data: { mime_type: file.type, data: base64Image } }
-                ]
-              }]
-            };
-          } else {
-            requestBody = {
-              contents: [{ parts: [{ text: prompt }] }]
-            };
-          }
-
-          const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(requestBody)
-            }
-          );
-
-          const data = await response.json();
-          if (data.error) { showError(data.error.message); return; }
-
-          const raw = data.candidates[0].content.parts[0].text;
-          renderSections(raw);
-
-        } catch (err) {
-          showError('Check your internet connection and API key, then try again.');
-        }
-
-        loadingDiv.classList.add('hidden');
-      }
-
-      function renderSections(raw) {
-        const outputDiv = document.getElementById('output');
-        const outputSections = document.getElementById('outputSections');
-        outputSections.innerHTML = '';
-
-        const sectionKeys = [
-          'FOOD IDENTIFIED',
-          'GLYCEMIC INDEX',
-          'BLOOD GLUCOSE IMPACT',
-          'RECOMMENDED PORTION SIZE',
-          'SAFE TO EAT?',
-          'HEALTHIER ALTERNATIVES'
-        ];
-
-        const grid = document.createElement('div');
-        grid.style.cssText = 'display: grid; grid-template-columns: 1fr 1fr; gap: 10px;';
-
-        sectionKeys.forEach((key, i) => {
-          const label = SECTION_LABELS[i];
-          const regex = new RegExp(`\\[${key}\\]([\\s\\S]*?)(?=\\[|$)`, 'i');
-          const match = raw.match(regex);
-          const content = match ? match[1].trim() : '';
-
-          if (!content) return;
-
-          const card = document.createElement('div');
-          card.className = 'section-card';
-          card.style.cssText = 'margin-bottom: 0;';
-          card.innerHTML = `
-            <div class="section-title">${label.title}</div>
-            <div class="section-body">${content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/\n/g, '<br/>')}</div>
-          `;
-          grid.appendChild(card);
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
         });
 
-        outputSections.appendChild(grid);
-        outputDiv.classList.remove('hidden');
+        const data = await response.json();
+        renderSections(data.candidates[0].content.parts[0].text);
+      }
+
+      // 5. Parse output text blocks into visual boxes
+      function renderSections(rawText) {
+        const keys = ['FOOD IDENTIFIED', 'GLYCEMIC INDEX', 'BLOOD GLUCOSE IMPACT', 'RECOMMENDED PORTION SIZE', 'SAFE TO EAT?', 'HEALTHIER ALTERNATIVES'];
+        const output = document.getElementById('outputSections');
+        output.innerHTML = '';
+
+        keys.forEach(key => {
+          const regex = new RegExp(`\\[${key}\\]([\\s\\S]*?)(?=\\[|$)`, 'i');
+          const match = rawText.match(regex);
+          if (match) {
+            const card = document.createElement('div');
+            card.className = 'section-card';
+            card.innerHTML = `<div class="section-title">${key}</div><div>${match[1].trim()}</div>`;
+            output.appendChild(card);
+          }
+        });
       }
 
       function toBase64(file) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
           const reader = new FileReader();
           reader.onload = () => resolve(reader.result.split(',')[1]);
-          reader.onerror = reject;
           reader.readAsDataURL(file);
         });
       }
     </script>
-
   </body>
 </html>
